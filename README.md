@@ -1,6 +1,6 @@
-0x00. AirBnB clone - The console
+<h1>0x00. AirBnB clone - The console</h1>
 
-Group project
+</h2>Group project</h2>
 
 Python
 
