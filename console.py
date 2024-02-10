@@ -62,7 +62,8 @@ class HBNBCommand(cmd.Cmd):
         """
         args = arg.split()
         if len(args) < 2:
-            print('** class name missing **' if not args else '** instance id missing **')
+            print('** class name missing **' if not args
+                  else '** instance id missing **')
             return
 
         class_name, instance_id = args[0], args[1]
@@ -83,7 +84,8 @@ class HBNBCommand(cmd.Cmd):
         """
         args = arg.split()
         if len(args) < 2:
-            print("** class name missing **" if not args else "** instance id missing **")
+            print("** class name missing **" if not args
+                  else "** instance id missing **")
             return
         class_name, instance_id = args[0], args[1]
         if class_name not in self.valid_classes:
@@ -91,7 +93,7 @@ class HBNBCommand(cmd.Cmd):
             return
 
         key = "{}.{}".format(class_name, instance_id)
-        if key in BaseModel.__onbjects:
+        if key in BaseModel.__objects:
             del BaseModel.__objects[key]
             BaseModel.save_to_file()
         else:
@@ -105,9 +107,9 @@ class HBNBCommand(cmd.Cmd):
         """
         args = arg.split()
         if arg and args[0] not in self.valid_classes:
-                print("** class doesn't exist **")
-                return
-        instances = [str(obj) for obj in BaseModel.__objects.value()]
+            print("** class doesn't exist **")
+            return
+        instances = [str(obj) for obj in BaseModel.__objects.values()]
         print(instances)
 
     def do_update(self, arg):
@@ -120,12 +122,13 @@ class HBNBCommand(cmd.Cmd):
         if len(args) < 1:
             print("** class name missing **")
             return
-        class_name, instance_id, attr_name, attr_value = args[0], args[1], args[2], args[3]
+        class_name, instance_id, attr_name, attr_value =
+        args[0], args[1], args[2], args[3]
         if class_name not in self.valid_classes:
             print("** class doesn't exist **")
             return
         key = "{}.{}".format(class_name, instance_id)
-        if key in BaseModel.__object:
+        if key in BaseModel.__objects:
             instance = BaseModel.__objects[key]
             if hasattr(instance, attr_name):
                 attr_type = type(getattr(instance, attr_name))
