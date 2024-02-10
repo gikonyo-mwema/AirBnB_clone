@@ -1,8 +1,10 @@
 #!/usr/bin/python3
 import json
 from models.base_model import BaseModel
+from models.user import User
 
 class FileStorage:
+
     """
     Class that serializes instances to a JSON file and deserializes JSON file to instances
     """
@@ -35,6 +37,10 @@ class FileStorage:
         """
         try:
             with open(self.__file_path, 'r') as f:
-                self.__objects = {k: BaseModel(**v) for k, v in json.load(f).items()}
+                for k, v in json.load(f).items():
+                    if v['__class__'] == 'BaseModel':
+                        self.__objects[k] = BaseModel(**v)
+                    elif v['__class__'] == 'User':
+                        self.__objects[k] = User(**v)
         except FileNotFoundError:
             pass
