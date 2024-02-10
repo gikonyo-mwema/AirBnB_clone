@@ -119,10 +119,21 @@ class HBNBCommand(cmd.Cmd):
         Usage: update <class name> <id> <attribute name> "<attribute value>"
         """
         args = arg.split()
-        if len(args) < 1:
-            print("** class name missing **")
+        if len(args) < 4:
+            if len(args) < 1:
+                print("** class name missing **")
+            elif len(args) < 2:
+                print("** instance id missing **")
+            elif len(args) < 3:
+                print("** attribute name missing **")
+            else:
+                print("** value missing **")
             return
-        class_name, instance_id, attr_name, attr_value = args
+
+        class_name = args[0]
+        instance_id = args[1]
+        attr_name =  args[2]
+        attr_value = args[3]
         if class_name not in self.valid_classes:
             print("** class doesn't exist **")
             return
@@ -130,7 +141,8 @@ class HBNBCommand(cmd.Cmd):
         if key in BaseModel.__objects:
             instance = BaseModel.__objects[key]
             if hasattr(instance, attr_name):
-                attr_type = type(getattr(instance, attr_name))
+                if attr_name not in ['id', 'created_', 'updated_at']:
+                    attr_type = type(getattr(instance, attr_name))
                 try:
                     setattr(instance, attr_name, attr_type(attr_value))
                     BaseModel.save_to_file()
@@ -138,6 +150,8 @@ class HBNBCommand(cmd.Cmd):
                     print("** value missing **")
             else:
                 print("** no instance found **")
+        else:
+            print("** no instance found **")
 
 
 if __name__ == '__main__':
