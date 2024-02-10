@@ -6,7 +6,7 @@ This module contains a command interpreter for Airbnb clone.
 
 import cmd
 import json
-from models import BaseModel
+from models.base_model import BaseModel
 
 
 class HBNBCommand(cmd.Cmd):
