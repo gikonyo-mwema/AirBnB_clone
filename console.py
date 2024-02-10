@@ -15,6 +15,7 @@ class HBNBCommand(cmd.Cmd):
     """
 
     prompt = '(hbnb) '
+    valid_classes = ["BaseModel"]
 
     def do_quit(self, arg):
         """
@@ -38,103 +39,103 @@ class HBNBCommand(cmd.Cmd):
     def do_create(self, arg):
         """
         Creates a new instance of BaseModel, saves it and prints id
+
+        Usage: create <class name>
         """
+        args = arg.split()
         if not arg:
             print("** class name missing **")
-        elif arg != "BaseModel":
+            return
+        class_name = args[0]
+        if class_name not in self.valid_classes:
             print("** class doesn't exist **")
-        else:
-            obj = BaseModel()
-            obj.save()
-            print(obj.id)
+            return
+        new_instance = BaseModel()
+        new_instance.save()
+        print(new_instance.id)
 
     def do_show(self, arg):
         """
         Prints the string representation of an instance
+
+        Usage: show <class name> <id>
         """
         args = arg.split()
-        if len(args) < 1:
-            print('** class name missing **')
-        elif args[0] != "BaseModel":
-            print("** class doesn't exist **")
-        elif len(args) < 2:
-            print("** instance id missing **")
+        if len(args) < 2:
+            print('** class name missing **' if not args else '** instance id missing **')
+            return
+
+        class_name, instance_id = args[0], args[1]
+        if class_name not in self.valid_classes:
+            print("** class doen't exist **")
+            return
+        key = "{}.{}".format(class_name, instance_id)
+        if key in BaseModel.__objects:
+            print(BaseModel.__objects[key])
         else:
-            instance = None
-            for obj in BaseModel.all():
-                if obj.id == args[1]:
-                    instance = obj
-                    break
-            if instance is None:
-                print("** no instance found **")
-            else:
-                print(instance)
+            print("** no instance found **")
 
     def do_destroy(self, arg):
         """
         Deletes an instance based on the class name and id
+
+        Usage: destroy <class name> <id>
         """
         args = arg.split()
-        if len(args) < 1:
-            print("** Class name missing **")
-        elif args[0] != "BaseModel":
+        if len(args) < 2:
+            print("** class name missing **" if not args else "** instance id missing **")
+            return
+        class_name, instance_id = args[0], args[1]
+        if class_name not in self.valid_classes:
             print("** class doesn't exist **")
-        elif len(args) < 2:
-            print("** instance id missing **")
+            return
+
+        key = "{}.{}".format(class_name, instance_id)
+        if key in BaseModel.__onbjects:
+            del BaseModel.__objects[key]
+            BaseModel.save_to_file()
         else:
-            instance = None
-            for obj in BaseModel.all():
-                if obj.id == args[1]:
-                    instance = obj
-                    break
-            if instance is None:
-                print("** no instance found **")
-            else:
-                BaseModel.destroy(instance)
+            print("** no instance found **")
 
     def do_all(self, arg):
         """
         Prints all string representationf of ll instances
+
+        Usage: arg.split()
         """
-        if arg:
-            if arg != "BaseModel":
+        args = arg.split()
+        if arg and args[0] not in self.valid_classes:
                 print("** class doesn't exist **")
-            else:
-                for obj in BaseModel.all():
-                    if obj.__class__.__name__ == arg:
-                        print(obj)
-        else:
-            for obj in BaseModel.all():
-                print(obj)
+                return
+        instances = [str(obj) for obj in BaseModel.__objects.value()]
+        print(instances)
 
     def do_update(self, arg):
         """
-        Updates an instance based on the class name and id or
-        updating attribute
+        Updates an instance based on the class name and id.
+
+        Usage: update <class name> <id> <attribute name> "<attribute value>"
         """
         args = arg.split()
         if len(args) < 1:
             print("** class name missing **")
-        elif arg[0] != "BaseModel":
+            return
+        class_name, instance_id, attr_name, attr_value = args[0], args[1], args[2], args[3]
+        if class_name not in self.valid_classes:
             print("** class doesn't exist **")
-        elif len(args) < 2:
-            print("** instance id missing **")
-        else:
-            # find the instance with the given id
-            instance = None
-            for obj in BaseModel.all():
-                if obj.id == args[1]:
-                    instance = obj
-                    break
-                if instance is None:
-                    print("** no instance found **")
-                elif len(args) < 3:
-                    print("** attribute name missing **")
-                elif len(args) < 4:
+            return
+        key = "{}.{}".format(class_name, instance_id)
+        if key in BaseModel.__object:
+            instance = BaseModel.__objects[key]
+            if hasattr(instance, attr_name):
+                attr_type = type(getattr(instance, attr_name))
+                try:
+                    setattr(instance, attr_name, attr_type(attr_value))
+                    BaseModel.save_to_file()
+                except ValueError:
                     print("** value missing **")
-                else:
-                    setattr(instance, args[2], args[3])
-                    instance.save()
+            else:
+                print("** no instance found **")
 
 
 if __name__ == '__main__':
