@@ -15,7 +15,7 @@ class HBNBCommand(cmd.Cmd):
     """
 
     prompt = "(hbnb) "
-    valid_classes = ["BaseModel"]
+    valid_classes = ["BaseModel", "User"]
 
     def do_quit(self, arg):
         """
@@ -27,7 +27,7 @@ class HBNBCommand(cmd.Cmd):
         """
         EOF command to exit the program
         """
-        print()
+        print("")
         return True
 
     def emptyline(self):

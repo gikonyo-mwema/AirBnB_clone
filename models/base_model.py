@@ -7,7 +7,7 @@ Defines the BaseModels class with common attributes/methods.
 
 import uuid
 from datetime import datetime
- 
+from models import storage 
 
 
 class BaseModel:
@@ -19,6 +19,8 @@ class BaseModel:
         """
         Initialize Basemodel instance with unique id and current datetime.
         """
+        if not kwargs:
+            storage.new(self)
         if kwargs:
             for key, value in kwargs.items():
                 if key == "created_at" or key == "updated_at":
@@ -36,8 +38,7 @@ class BaseModel:
         """
         Register the instance in storage
         """
-        from models import storage
-        storage.new(self)
+        storage.save()
 
     def save(self):
         """
