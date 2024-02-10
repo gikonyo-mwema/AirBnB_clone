@@ -14,7 +14,7 @@ class HBNBCommand(cmd.Cmd):
     HBNBCommand class that inherits from cmd.Cmd
     """
 
-    prompt = '(hbnb) '
+    prompt = "(hbnb) "
     valid_classes = ["BaseModel"]
 
     def do_quit(self, arg):
@@ -43,7 +43,7 @@ class HBNBCommand(cmd.Cmd):
         Usage: create <class name>
         """
         args = arg.split()
-        if not arg:
+        if not args:
             print("** class name missing **")
             return
         class_name = args[0]
