@@ -1,4 +1,5 @@
 import unittest
+import os
 from models.engine.file_storage import FileStorage
 from models.base_model import BaseModel
 
@@ -16,12 +17,16 @@ class TestFileStorage(unittest.TestCase):
         self.model1.name = "ALX"
         self.model1.my_number = 89
         self.storage.new(self.model1)
+        self.model2 = BaseModel()
 
     def tearDown(self):
         """
         Ends the test
         """
-        pass
+        try:
+            os.remove("file.json")
+        except FileNotFoundError:
+            pass
 
     def test_all(self):
         """
@@ -33,15 +38,18 @@ class TestFileStorage(unittest.TestCase):
         """
         Tests the new method of FileStorage
         """
-        models2 = BaseModel()
-        models2.name = "Betty"
-        self.storage.new(model2)
-        self.assertIn("BaseModel." + model2.id, self.storage.all())
+        self.storage.new(self.model2)
+        self.assertIn("BaseModel." + self.model2.id, self.storage.all())
 
     def test_save(self):
         """
         Tests the save method of FileStorage
         """
+        storage = FileStorage()
+        model = BaseModel()
+        model.name = "ALX"
+        model.my_number = 89
+        storage.new(model)
         self.storage.save()
         with open("file.json", "r") as file:
             self.assertIn("BaseModel." + self.model1.id, file.read())
@@ -50,6 +58,12 @@ class TestFileStorage(unittest.TestCase):
         """
         Tests the reload method of FileStorage
         """
+        storage = FileStorage()
+        model = BaseModel()
+        model.name = "ALX"
+        model.my_number = 89
+        storage.new(model)
+        storage.save()
         self.storage.reload()
         self.assertIn("BaseModel." + self.model1.id, self.storage.all())
 

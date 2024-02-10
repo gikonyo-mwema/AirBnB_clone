@@ -6,6 +6,8 @@ This module initializes a unique instance of FileStorage for the application
 # Import the FileStorage class from the file_storage module in the
 # models/engine directory
 from models.engine.file_storage import FileStorage
+from .base_model import BaseModel
+
 
 # Create the variable storage, an instance of FileStorage
 # This will be the unique FileStorage instance
