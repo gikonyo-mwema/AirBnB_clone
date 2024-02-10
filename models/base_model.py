@@ -7,7 +7,6 @@ Defines the BaseModels class with common attributes/methods.
 
 import uuid
 from datetime import datetime
-from models import storage 
 
 
 class BaseModel:
@@ -20,7 +19,9 @@ class BaseModel:
         Initialize Basemodel instance with unique id and current datetime.
         """
         if not kwargs:
-            storage.new(self)
+            self.id = str(uuid.uuid4())
+            self.created_at = self.updated_at = datetime.now()
+            self.add_to_storage()
         if kwargs:
             for key, value in kwargs.items():
                 if key == "created_at" or key == "updated_at":
@@ -38,21 +39,25 @@ class BaseModel:
         """
         Register the instance in storage
         """
+        from models import storage
+        storage.new(self)
         storage.save()
 
     def save(self):
         """
         Update update_at with current datetime
         """
+        from models import storage
+        self.add_to_storage()
         self.updated_at = datetime.now()
-        self.persist()
+        storage.save()
 
-    def persist(self):
+    def add_to_storage(self):
         """
         Persist the instance in storage
         """
         from models import storage
-        storage.save()
+        storage.new(self)
 
     def to_dict(self):
         """
