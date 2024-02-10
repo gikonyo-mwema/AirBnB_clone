@@ -122,8 +122,7 @@ class HBNBCommand(cmd.Cmd):
         if len(args) < 1:
             print("** class name missing **")
             return
-        class_name, instance_id, attr_name, attr_value =
-        args[0], args[1], args[2], args[3]
+        class_name, instance_id, attr_name, attr_value = args
         if class_name not in self.valid_classes:
             print("** class doesn't exist **")
             return
