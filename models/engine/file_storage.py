@@ -2,7 +2,13 @@
 import json
 from models.base_model import BaseModel
 from models.user import User
-
+# Additional classes
+from models.user import User
+from models.state import State
+from models.city import City
+from models.place import Place
+from models.amenity import Amenity
+from models.review import Review
 
 class FileStorage:
 
@@ -42,10 +48,10 @@ class FileStorage:
         """
         try:
             with open(self.__file_path, 'r') as f:
-                for k, v in json.load(f).items():
-                    if v['__class__'] == 'BaseModel':
-                        self.__objects[k] = BaseModel(**v)
-                    elif v['__class__'] == 'User':
-                        self.__objects[k] = User(**v)
+                data = json.load(f)
+                for k, v in data.items():
+                    cls_name = v['__class__']
+                    instance = eval(cls_name)(**v)
+                    self.__objects[k] = instance
         except FileNotFoundError:
             pass
