@@ -3,8 +3,11 @@
 This module initializes a unique instance of FileStorage for the application
 """
 
-from models.engine import file_storage
+from models.engine.file_storage import FileStorage
 
 
-storage = file_storage.FileStorage()
+# Create the variable storage, an instance of FileStorage
+storage = FileStorage()
+
+# call reload() method on this variable
 storage.reload()
