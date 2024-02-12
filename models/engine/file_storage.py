@@ -6,6 +6,7 @@ instances to/from a JSON file.
 """
 
 
+import os
 import json
 from models.base_model import BaseModel
 from models.user import User
@@ -38,6 +39,8 @@ class FileStorage:
         """
         Sets obj in _objects with key <obj class name>.id.
         """
+        if not hasattr(obj, 'id'):
+            raise ValueError("Object must have an 'id' attribute")
         key = f"{obj.__class__.__name__}.{obj.id}"
         self.__objects[key] = obj
 
@@ -59,26 +62,24 @@ class FileStorage:
         Deserializes the JSON file back into __objects.
         Only if the JSON file (__file_path) exists; otherwise, do nothing
         """
-        try:
-            with open(self.__file__path, "r") as json_file:
-                serialized_objects = json.load(json_file)
-                for key, serialized_obj in serialized_objects.items():
-                    class_name, obj_id = key.split(".")
-                    # Assuming you have a method tha creats instances
-                    # from a dictionary
-                    obj = self.create_instance_from_dict(
-                        class_name,
-                        serialized_obj
-                    )
-                    self.__objects[key] = obj
-        except FileNotFoundError:
-            pass  # If the file doesn't exist, no exception should be raised
+        if not os.path.exists(self.__file__path):
+            return  # If the file doesn't exist, do nothing
 
-    def create_instance_from_dict(self, class_name, serialized_obj):
-        """
-        Creates an instance from a dictionary.
-        """
-        if class_name == "BaseModel":
-            return BaseModel(**serialized_obj)
-        else:
-            raise ValueError(f"Unknown class name: {class_name}")
+        with open(self.__file__path, "r") as json_file:
+            serialized_objects = json.load(json_file)
+            for key, serialized_obj in serialized_objects.items():
+                class_name, obj_id = key.split(".")
+                class_dict = {
+                        "BaseModel": BaseModel,
+                        "User": User,
+                        "State": State,
+                        "City": City,
+                        "Place": Place,
+                        "Amenity": Amenity,
+                        "Review": Review
+                }  # Add other classes
+                if class_name in class_dict:
+                    obj = class_dict[class_name]
+                    self.__objects[key] = obj
+                else:
+                    raise ValueError(f"Unknown class name: {class_name}")

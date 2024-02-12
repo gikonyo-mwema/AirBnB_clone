@@ -3,7 +3,7 @@
 This module initializes a unique instance of FileStorage for the application
 """
 
-from models.engine.file_storage import FileStorage
+from .engine.file_storage import FileStorage
 
 
 # Create the variable storage, an instance of FileStorage
