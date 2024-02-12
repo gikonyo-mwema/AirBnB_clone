@@ -3,10 +3,17 @@
 This module contains a command interpreter for Airbnb clone.
 """
 
-
 import cmd
 import json
+import re
 from models.base_model import BaseModel
+from models.user import User
+from models.state import State
+from models.city import City
+from models.place import Place
+from models.amenity import Amenity
+from models.review import Review
+from models import storage
 
 
 class HBNBCommand(cmd.Cmd):
@@ -15,7 +22,8 @@ class HBNBCommand(cmd.Cmd):
     """
 
     prompt = "(hbnb) "
-    valid_classes = ["BaseModel", "User"]
+    valid_classes = ["BaseModel", "User", "State", "City",
+                     "Place", "Amenity", "Review"]
 
     def do_quit(self, arg):
         """
@@ -32,15 +40,14 @@ class HBNBCommand(cmd.Cmd):
 
     def emptyline(self):
         """
-        An empty line plus ENTER should no nothing
+        An empty line plus ENTER should do nothing
         """
         pass
 
     def do_create(self, arg):
         """
-        Creates a new instance of BaseModel, saves it and prints id
-
-        Usage: create <class name>
+        Creates a new instance of BaseModel, saves it (to the JSON file)
+        and prints the id.
         """
         args = arg.split()
         if not args:
@@ -50,15 +57,14 @@ class HBNBCommand(cmd.Cmd):
         if class_name not in self.valid_classes:
             print("** class doesn't exist **")
             return
-        new_instance = BaseModel()
+        new_instance = eval(class_name)()
         new_instance.save()
         print(new_instance.id)
 
     def do_show(self, arg):
         """
-        Prints the string representation of an instance
-
-        Usage: show <class name> <id>
+        Prints the string representation of an instance based on the
+        class name and id.
         """
         args = arg.split()
         if len(args) < 2:
@@ -68,19 +74,19 @@ class HBNBCommand(cmd.Cmd):
 
         class_name, instance_id = args[0], args[1]
         if class_name not in self.valid_classes:
-            print("** class doen't exist **")
+            print("** class doesn't exist **")
             return
         key = "{}.{}".format(class_name, instance_id)
-        if key in BaseModel.__objects:
-            print(BaseModel.__objects[key])
+        all_objs = storage.all()
+        if key in all_objs:
+            print(all_objs[key])
         else:
             print("** no instance found **")
 
     def do_destroy(self, arg):
         """
-        Deletes an instance based on the class name and id
-
-        Usage: destroy <class name> <id>
+        Deletes an instance based on the class name and id (save the
+        change into the JSON file).
         """
         args = arg.split()
         if len(args) < 2:
@@ -93,30 +99,31 @@ class HBNBCommand(cmd.Cmd):
             return
 
         key = "{}.{}".format(class_name, instance_id)
-        if key in BaseModel.__objects:
-            del BaseModel.__objects[key]
-            BaseModel.save_to_file()
+        all_objs = storage.all()
+        if key in all_objs:
+            del all_objs[key]
+            storage.save()
         else:
             print("** no instance found **")
 
     def do_all(self, arg):
         """
-        Prints all string representationf of ll instances
-
-        Usage: arg.split()
+        Prints all string representation of all instances based or not
+        on the class name.
         """
         args = arg.split()
         if arg and args[0] not in self.valid_classes:
             print("** class doesn't exist **")
             return
-        instances = [str(obj) for obj in BaseModel.__objects.values()]
+        all_objs = storage.all()
+        instances = [str(obj) for obj in all_objs.values()
+                     if isinstance(obj, eval(args[0]))]
         print(instances)
 
     def do_update(self, arg):
         """
-        Updates an instance based on the class name and id.
-
-        Usage: update <class name> <id> <attribute name> "<attribute value>"
+        Updates an instance based on the class name and id by adding or
+        updating attribute (save the change into the JSON file).
         """
         args = arg.split()
         if len(args) < 4:
@@ -132,20 +139,21 @@ class HBNBCommand(cmd.Cmd):
 
         class_name = args[0]
         instance_id = args[1]
-        attr_name =  args[2]
+        attr_name = args[2]
         attr_value = args[3]
         if class_name not in self.valid_classes:
             print("** class doesn't exist **")
             return
         key = "{}.{}".format(class_name, instance_id)
-        if key in BaseModel.__objects:
-            instance = BaseModel.__objects[key]
+        all_objs = storage.all()
+        if key in all_objs:
+            instance = all_objs[key]
             if hasattr(instance, attr_name):
                 if attr_name not in ['id', 'created_', 'updated_at']:
                     attr_type = type(getattr(instance, attr_name))
                 try:
                     setattr(instance, attr_name, attr_type(attr_value))
-                    BaseModel.save_to_file()
+                    storage.save()
                 except ValueError:
                     print("** value missing **")
             else:
