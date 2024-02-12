@@ -51,6 +51,7 @@ class FileStorage:
         """
         serialized_objects = {}
         for key, obj in self.__objects.items():
+            # print(f"Object: {obj}, Type: {type(obj)}")
             if hasattr(obj, "to_dict"):  # Check if to_dict method exists
                 serialized_objects[key] = obj.to_dict()
 
@@ -79,7 +80,8 @@ class FileStorage:
                         "Review": Review
                 }  # Add other classes
                 if class_name in class_dict:
-                    obj = class_dict[class_name]
+                    Class = class_dict[class_name]
+                    obj = Class(**serialized_obj)  # Create a new instance
                     self.__objects[key] = obj
                 else:
                     raise ValueError(f"Unknown class name: {class_name}")
