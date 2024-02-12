@@ -5,6 +5,8 @@ This module contains unit tests for the BaseModel class.
 
 import unittest
 import datetime
+import os
+from time import sleep
 from models.base_model import BaseModel
 from models import storage
 
@@ -26,7 +28,7 @@ class TestBaseModel(unittest.TestCase):
         Test if creating an instance without any arguments
         results in a BaseModel instance.
         """
-        self.assertIsInstance(self.model1, BaseModel)
+        self.assertEqual(BaseModel, type(BaseModel()))
 
     def test_new_instance_stored_in_objects(self):
         """
@@ -39,19 +41,19 @@ class TestBaseModel(unittest.TestCase):
         """
         Test if the id attribute is a string.
         """
-        self.assertIsInstance(self.model1.id, str)
+        self.assertEqual(str, type(BaseModel().id))
 
     def test_created_at_is_public_datetime(self):
         """
         Test if the created_at attribute is of type datetime.
         """
-        self.assertIsInstance(self.model1.created_at, datetime.datetime)
+        self.assertEqual(datetime, type(BaseModel().created_at))
 
     def test_updated_at_is_public_datetime(self):
         """
         Test if the updated_at attribute is of type datetime.
         """
-        self.assertIsInstance(self.model1.updated_at, datetime.datetime)
+        self.assertEqual(datetime, type(BaseModel().updated_at))
 
     def test_two_models_unique_ids(self):
         """
