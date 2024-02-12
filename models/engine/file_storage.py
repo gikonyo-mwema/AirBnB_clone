@@ -66,7 +66,10 @@ class FileStorage:
                     class_name, obj_id = key.split(".")
                     # Assuming you have a method tha creats instances
                     # from a dictionary
-                    obj = self.create_instance_from_dict(class_name, serialized_obj)
+                    obj = self.create_instance_from_dict(
+                        class_name,
+                        serialized_obj
+                    )
                     self.__objects[key] = obj
         except FileNotFoundError:
             pass  # If the file doesn't exist, no exception should be raised
@@ -74,6 +77,8 @@ class FileStorage:
     def create_instance_from_dict(self, class_name, serialized_obj):
         """
         Creates an instance from a dictionary.
-        This is a placeholder and needs to be implemented
         """
-        pass
+        if class_name == "BaseModel":
+            return BaseModel(**serialized_obj)
+        else:
+            raise ValueError(f"Unknown class name: {class_name}")
