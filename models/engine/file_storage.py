@@ -32,7 +32,7 @@ class FileStorage:
         """
         Returns the dictionary __objects.
         """
-        return FileStorage.__objects
+        return self.__objects
 
     def new(self, obj):
         """
@@ -48,9 +48,10 @@ class FileStorage:
         """
         serialized_objects = {}
         for key, obj in self.__objects.items():
-            serialized_objects[key] = obj.to_dict()
+            if hasattr(obj, "to_dict"):  # Check if to_dict method exists
+                serialized_objects[key] = obj.to_dict()
 
-        with open(self.__file_path, "w") as json_file:
+        with open(self.__file__path, "w") as json_file:
             json.dump(serialized_objects, json_file)
 
     def reload(self):
@@ -59,13 +60,20 @@ class FileStorage:
         Only if the JSON file (__file_path) exists; otherwise, do nothing
         """
         try:
-            with open(self.__file_path, "r") as json_file:
+            with open(self.__file__path, "r") as json_file:
                 serialized_objects = json.load(json_file)
                 for key, serialized_obj in serialized_objects.items():
                     class_name, obj_id = key.split(".")
                     # Assuming you have a method tha creats instances
                     # from a dictionary
-                    obj = create_instance_from_dict(class_name, serialized_obj)
+                    obj = self.create_instance_from_dict(class_name, serialized_obj)
                     self.__objects[key] = obj
         except FileNotFoundError:
             pass  # If the file doesn't exist, no exception should be raised
+
+    def create_instance_from_dict(self, class_name, serialized_obj):
+        """
+        Creates an instance from a dictionary.
+        This is a placeholder and needs to be implemented
+        """
+        pass
