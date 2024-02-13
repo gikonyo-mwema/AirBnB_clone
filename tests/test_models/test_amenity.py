@@ -3,6 +3,7 @@
 This module contains unit tests for the Amenity class.
 """
 
+import os
 import unittest
 from models.base_model import BaseModel
 from models.amenity import Amenity

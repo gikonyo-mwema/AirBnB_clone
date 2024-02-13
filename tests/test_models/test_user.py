@@ -3,6 +3,7 @@
 This module contains unit tests for the User class.
 """
 
+import os
 import unittest
 from models.base_model import BaseModel
 from models.user import User

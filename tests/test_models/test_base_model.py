@@ -3,6 +3,7 @@
 This module contains unit tests for the BaseModel class.
 """
 
+import models
 import unittest
 import datetime
 import os

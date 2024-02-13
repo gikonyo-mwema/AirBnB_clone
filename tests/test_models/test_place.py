@@ -3,6 +3,7 @@
 This module contains unit tests for the Place class.
 """
 
+import os
 import unittest
 from models.base_model import BaseModel
 from models.place import Place
