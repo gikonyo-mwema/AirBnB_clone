@@ -16,6 +16,24 @@ from models.review import Review
 from models import storage
 
 
+def parse(arg):
+    curly_braces = re.search(r"\{(.*?)\}", arg)
+    brackets = re.search(r"\[(.*?)\]", arg)
+    if curly_braces is None:
+        if brackets is None:
+            return [i.strip(",") for i in split(arg)]
+        else:
+            lexer = split(arg[:brackets.span()[0]])
+            retl = [i.strip(",") for i in lexer]
+            retl.append(brackets.group())
+            return retl
+    else:
+        lexer = split(arg[:curly_braces.span()[0]])
+        retl = [i.strip(",") for i in lexer]
+        retl.append(curly_braces.group())
+        return retl
+
+
 class HBNBCommand(cmd.Cmd):
     """
     HBNBCommand class that inherits from cmd.Cmd
@@ -49,7 +67,7 @@ class HBNBCommand(cmd.Cmd):
         Creates a new instance of BaseModel, saves it (to the JSON file)
         and prints the id.
         """
-        args = arg.split()
+        args = parse(arg)
         if not args:
             print("** class name missing **")
             return
@@ -66,7 +84,7 @@ class HBNBCommand(cmd.Cmd):
         Prints the string representation of an instance based on the
         class name and id.
         """
-        args = arg.split()
+        args = parse(arg)
         if len(args) < 2:
             print('** class name missing **' if not args
                   else '** instance id missing **')
@@ -88,7 +106,7 @@ class HBNBCommand(cmd.Cmd):
         Deletes an instance based on the class name and id (save the
         change into the JSON file).
         """
-        args = arg.split()
+        args = parse(arg)
         if len(args) < 2:
             print("** class name missing **" if not args
                   else "** instance id missing **")
@@ -111,7 +129,7 @@ class HBNBCommand(cmd.Cmd):
         Prints all string representation of all instances based or not
         on the class name.
         """
-        args = arg.split()
+        args = parse(arg)
         if arg and args[0] not in self.valid_classes:
             print("** class doesn't exist **")
             return
@@ -125,7 +143,7 @@ class HBNBCommand(cmd.Cmd):
         Updates an instance based on the class name and id by adding or
         updating attribute (save the change into the JSON file).
         """
-        args = arg.split()
+        args = parse(arg)
         if len(args) < 4:
             if len(args) < 1:
                 print("** class name missing **")
@@ -136,31 +154,44 @@ class HBNBCommand(cmd.Cmd):
             else:
                 print("** value missing **")
             return
-
-        class_name = args[0]
-        instance_id = args[1]
-        attr_name = args[2]
-        attr_value = args[3]
+        class_name, instance_id = args[0], args[1]
         if class_name not in self.valid_classes:
             print("** class doesn't exist **")
             return
         key = "{}.{}".format(class_name, instance_id)
         all_objs = storage.all()
-        if key in all_objs:
-            instance = all_objs[key]
-            if hasattr(instance, attr_name):
-                if attr_name not in ['id', 'created_', 'updated_at']:
-                    attr_type = type(getattr(instance, attr_name))
-                try:
-                    setattr(instance, attr_name, attr_type(attr_value))
-                    storage.save()
-                except ValueError:
-                    print("** value missing **")
-            else:
-                print("** no instance found **")
-        else:
+        if key not in all_objs:
             print("** no instance found **")
+            return
+        if len(args) == 4:
+            setattr(all_objs[key], args[2], args[3])
+            all_objs[key].save()
+        else:
+            print("** value missing **")
+
+    def default(self, arg):
+        """
+        Default behavior for cmd module when input is invalid
+        """
+        argdict = {
+            "all": self.do_all,
+            "show": self.do_show,
+            "destroy": self.do_destroy,
+            "count": self.do_count,
+            "update": self.do_update
+        }
+        match = re.search(r"\.", arg)
+        if match is not None:
+            argl = [arg[:match.span()[0]], arg[match.span()[1]:]]
+            match = re.search(r"\((.*?)\)", argl[1])
+            if match is not None:
+                command = [argl[1][:match.span()[0]], match.group()[1:-1]]
+                if command[0] in argdict.keys():
+                    call = "{} {}".format(argl[0], command[1])
+                    return argdict[command[0]](call)
+        print("*** Unknown syntax: {}".format(arg))
+        return False
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     HBNBCommand().cmdloop()
