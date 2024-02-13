@@ -35,7 +35,7 @@ class TestBaseModel(unittest.TestCase):
         Test if a newly created instance is stored in the
         appropriate storage mechanism.
         """
-        self.assertIn(self.model1, storage.all().values())
+        self.assertIn(self.model1, models.storage.all().values())
 
     def test_id_is_public_str(self):
         """
@@ -47,13 +47,13 @@ class TestBaseModel(unittest.TestCase):
         """
         Test if the created_at attribute is of type datetime.
         """
-        self.assertEqual(datetime, type(BaseModel().created_at))
+        self.assertEqual(datetime.datetime, type(BaseModel().created_at))
 
     def test_updated_at_is_public_datetime(self):
         """
         Test if the updated_at attribute is of type datetime.
         """
-        self.assertEqual(datetime, type(BaseModel().updated_at))
+        self.assertEqual(datetime.datetime, type(BaseModel().updated_at))
 
     def test_two_models_unique_ids(self):
         """
@@ -79,7 +79,11 @@ class TestBaseModel(unittest.TestCase):
         """
         Test the string representation of a BaseModel instance.
         """
-        expected_str = f"[BaseModel] ({self.model1.id}) {self.model1.__dict__}"
+        expected_str = "[{}] ({}) {}".format(
+                self.model1.__class__.__name__,
+                self.model1.id,
+                self.model1.__dict__
+                )
         self.assertEqual(str(self.model1), expected_str)
 
     def test_to_dict_type(self):
